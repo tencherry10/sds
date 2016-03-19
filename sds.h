@@ -41,8 +41,6 @@
 
 typedef char *sds;
 
-#define auto_sds __attribute__((cleanup(auto_cleanup_sds))) sds
-
 /* Note: sdshdr5 is never used, we just access the flags byte directly.
  * However is here to document the layout of type 5 SDS strings. */
 struct __attribute__ ((__packed__)) sdshdr5 {
@@ -216,13 +214,6 @@ static inline void sdssetalloc(sds s, size_t newlen) {
     }
 }
 
-static inline void auto_cleanup_sds(sds *s) { 
-  if(s && *s) {
-    sdsfree(*s);
-    *s = NULL;
-  }
-}
-
 sds sdsnewlen(const void *init, size_t initlen);
 sds sdsnew(const char *init);
 sds sdsempty(void);
@@ -274,6 +265,15 @@ void *sdsAllocPtr(sds s);
 void *sds_malloc(size_t size);
 void *sds_realloc(void *ptr, size_t size);
 void sds_free(void *ptr);
+
+#define auto_sds __attribute__((cleanup(auto_cleanup_sds))) sds
+
+static inline void auto_cleanup_sds(sds *s) { 
+  if(s && *s) {
+    sdsfree(*s);
+    *s = NULL;
+  }
+}
 
 #ifdef REDIS_TEST
 int sdsTest(int argc, char *argv[]);
