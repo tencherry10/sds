@@ -271,7 +271,7 @@ void sds_free(void *ptr);
 static inline void auto_cleanup_sds(sds *s) { 
   if(s && *s) {
     sdsfree(*s);
-    *s = NULL;
+    *s = (void *) 0;
   }
 }
 
